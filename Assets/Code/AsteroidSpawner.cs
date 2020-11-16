@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class AsteroidSpawner : MonoBehaviour
 {
-    public GameObject asteroid1;
+    public Transform playerT;
+    public GameObject[] asteroids;
     //public GameObject asteroid2;
     //public GameObject asteroid3;
 
-    public int asteroidCount = 5;
+    public int cadence = 5;
+    private Coroutine couroutine;
 
-    private void Awake()
+    private IEnumerator SpawnAsteroids()
     {
-        for (int i = 0; i < asteroidCount; i++)
+        while (true)
         {
-            var asteroid1GameObject = Instantiate(asteroid1);
+            var asteroid1GameObject = Instantiate(asteroids[Random.Range(0, asteroids.Length)]);
+            var randomMovement = asteroid1GameObject.GetComponent<RandomMovement>();
+            randomMovement.SetTarget(playerT);
             //var asteroid2GameObject = Instantiate(asteroid2);
             //var asteroid3GameObject = Instantiate(asteroid3);
 
@@ -24,6 +28,18 @@ public class AsteroidSpawner : MonoBehaviour
             asteroid1GameObject.transform.position = new Vector3(x, 1, z);
             //asteroid2GameObject.transform.position = new Vector3(x, 1, z);
             //asteroid3GameObject.transform.position = new Vector3(x, 1, z);
+
+            yield return new WaitForSeconds(cadence);
         }
+        
+        
+    }
+    private void OnEnable()
+    {
+        couroutine = StartCoroutine(SpawnAsteroids());  
+    }
+    private void OnDisable()
+    {
+        StopCoroutine(couroutine);
     }
 }

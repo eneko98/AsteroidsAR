@@ -5,58 +5,18 @@ using UnityEngine.AI;
 
 public class RandomMovement : MonoBehaviour
 {
+    private Transform target;
+    public float speed;
 
-    public NavMeshAgent navMeshAgent;
-    NavMeshPath path;
-    public float timeForNewPath;
-    bool inCouroutine;
-    Vector3 target;
-    bool validPath;
-
-    private void Start()
+    public void SetTarget(Transform transform)
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
-        path = new NavMeshPath();
+        target = transform;
     }
-
     private void Update()
     {
-        if (!inCouroutine)
-        {
-            StartCoroutine(manageMovement());
-        }
-    }
-    Vector3 getNewRandomPosition()
-    {
-        float x = Random.Range(-20, 20);
-        float z = Random.Range(-20, 20);
-
-        Vector3 pos = new Vector3(x, 0, z);
-        return pos;
+        var direction = (target.position - transform.position).normalized;
+        var movement = direction * speed * Time.deltaTime;
+        transform.position += movement;
     }
 
-    IEnumerator manageMovement()
-    {
-        inCouroutine = true;
-        yield return new WaitForSeconds(timeForNewPath);
-        GetNewPath();
-        validPath = navMeshAgent.CalculatePath(target, path);
-        if (!validPath)
-        {
-            Debug.Log("Found an invalid path");
-        }
-        while (!validPath)
-        {
-            yield return new WaitForSeconds(0.01f);
-            GetNewPath();
-            validPath = navMeshAgent.CalculatePath(target, path);
-        }
-        inCouroutine = false;
-    }
-
-    void GetNewPath()
-    {
-        target = getNewRandomPosition();
-        navMeshAgent.SetDestination(target);
-    }
 }
